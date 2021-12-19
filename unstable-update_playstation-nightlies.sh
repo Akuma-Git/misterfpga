@@ -34,7 +34,7 @@ download(){ wget --no-cache -q "$2" -O "$1" || { rm "$1";exit 102;};}
 checksum(){ md5sum "$1"|grep -q "$2" || { rm "$1";exit 103;};}
 
 selfurl="https://raw.githubusercontent.com/Akuma-Git/misterfpga/main/unstable-update_playstation-nightlies.sh"
-selfurl_version="$(download "$selfurl"|sed -n 's,^version=,,;2p')"
+selfurl_version="$(wget --no-cache -q "$selfurl" -O -|sed -n 's,^version=,,;2p')"
 
 [ "$selfurl_version" = "$version" ] || {
   tempfile="$(mktemp -u)"; download "$tempfile" "$selfurl"
@@ -42,7 +42,7 @@ selfurl_version="$(download "$selfurl"|sed -n 's,^version=,,;2p')"
 }
 
 json="https://raw.githubusercontent.com/MiSTer-unstable-nightlies/Unstable_Folder_MiSTer/main/db_unstable_nightlies_folder.json"
-updates="$(wget -q "$json" -O -)" || exit 100
+updates="$(wget --no-cache -q "$json" -O -)" || exit 100
 
 coredir="/media/fat/_Unstable";makedir "$coredir"
 gamesdir="/media/fat/games/${corename}";makedir "$gamesdir"
