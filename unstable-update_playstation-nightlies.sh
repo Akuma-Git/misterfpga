@@ -1,2 +1,3 @@
 #!/bin/sh
-version=0.03
+version=0.04
+echo $version
