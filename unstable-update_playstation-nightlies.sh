@@ -1,3 +1,3 @@
 #!/bin/sh
 version=0.04
-echo $version
+echo version=$version
