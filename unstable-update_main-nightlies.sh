@@ -11,7 +11,7 @@ trap "result" 0 1 3 15
 
 result(){
   case "$?" in
-    0) echo "MiSTer version: ${nightliesurl##*/}";;
+    0) echo -e "MiSTer version: ${nightliesurl##*/}\n";;
    99) echo "self: updated self";;
   100) echo "error: cannot reach url";;
   101) echo "error: cannot write to sdcard";;
@@ -55,6 +55,6 @@ mv -f "${misterfile}" "${misterfile}.bak"
 mv -f "${tempfile}" "$misterfile"
 chmod +x "$misterfile"
 sync
-echo "Please reboot for changes to take effect"
+echo "Please 'cold reboot' for changes to take effect"
 
 exit 0
