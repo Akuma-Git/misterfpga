@@ -54,5 +54,7 @@ tempsize="$(stat -c%s "$tempfile")"
 mv -f "${misterfile}" "${misterfile}.bak"
 mv -f "${tempfile}" "$misterfile"
 chmod +x "$misterfile"
+sync
+echo "Please reboot for changes to take effect"
 
 exit 0
