@@ -3,7 +3,7 @@ version=0.00
 #
 #  MiSTer-unstable-nightlies Updater (c) 2021 by Akuma GPLv2
 #
-#  20211220 initial release
+#  20211221 initial release
 #
 self="$(readlink -f "$0")"
 
@@ -11,7 +11,7 @@ trap "result" 0 1 3 15
 
 result(){
   case "$?" in
-    0) echo "MiSTer version: ${tempfile##*/}";;
+    0) echo "MiSTer version: ${nightliesurl##*/}";;
    99) echo "self: updated self";;
   100) echo "error: cannot reach url";;
   101) echo "error: cannot write to sdcard";;
@@ -35,12 +35,12 @@ selfurl_version="$(urlcat "$selfurl"|sed -n 's,^version=,,;2p')"
 }
 
 nightliesurl="https://github.com/MiSTer-unstable-nightlies/Main_MiSTer/releases/tag/unstable-builds"
-nightliesfile="$(wget -q $misterurl -O -|grep -o "MiSTer_unstable_*"|tail -1)"
+nightliesfile="$(wget -q $nightliesurl -O -|grep -oE 'MiSTer_unstable_[0-9]{8}_[0-9a-f]{4}'|tail -1)"
 [ -n "$nightliesfile" ] || exit 101
 
-nightliesurl="https://github.com/MiSTer-unstable-nightlies/${nightliesfile}"
+nightliesurl="https://github.com/MiSTer-unstable-nightlies/Main_MiSTer/releases/download/unstable-builds/${nightliesfile}"
 nightliessize="$(wget --spider "$nightliesurl" 2>&1|grep ^Length|cut -d' ' -f2)"
-[ -n "$tempsize" ] || exit 101
+[ -n "$nightliessize" ] || exit 101
 
 misterfile="/media/fat/MiSTer"
 mistersize="$(stat -c%s "$misterfile")"
