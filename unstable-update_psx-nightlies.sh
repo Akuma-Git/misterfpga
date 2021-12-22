@@ -26,7 +26,7 @@ trap "result" 0 1 3 15
 result(){
   case "$?" in
     0) echo -e "core version: ${corefile##*/}\n";;
-    1) echo "self: updated self";;
+   99) echo "self: updated self";;
   100) echo "error: cannot reach url";;
   101) echo "error: cannot write to sdcard";;
   102) echo "error: download failed";;
@@ -45,17 +45,15 @@ selfurl_version="$(urlcat "$selfurl"|sed -n 's,^version=,,;2p')"
 
 [ "$selfurl_version" = "$version" ] || {
   tempfile="$(mktemp -u)"; download "$tempfile" "$selfurl"
-  mv "$tempfile" "$self";chmod +x "$self";exec "$self"; exit 1
+  mv "$tempfile" "$self";chmod +x "$self";exec "$self"; exit 99
 }
 
 coredir="/media/fat/_Unstable";makedir "$coredir"
 gamesdir="/media/fat/games"
 psxdir="$gamesdir/${corename}";makedir "$psxdir"
 
-
 biosurl="https://raw.githubusercontent.com/archtaurus/RetroPieBIOS/master/BIOS/scph1001.bin"
 bioshash="924e392ed05558ffdb115408c263dccf"
-
 biosfile="$psxdir/boot.rom"
 [ -f "$biosfile" ] || download "$biosfile" "$biosurl"
 [ -n "$bioshash" ] && checksum "$biosfile" "$bioshash"
