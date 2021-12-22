@@ -3,6 +3,7 @@ version=0.07
 #
 #  MiSTer-unstable-nightlies Updater (c) 2021 by Akuma GPLv2
 #
+#  20211222 update: changed update exit code to 99, removed white lines
 #  20211221 update: added auto-rename if old PlayStation games folder is found
 #  20211221 update: added one-time run for unstable-update_main-nightlies.sh
 #  20211221 update: added exit to urlcat as extra safety measure
