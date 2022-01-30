@@ -1,5 +1,5 @@
 #!/bin/sh
-version=0.07
+version=0.08
 #
 #  MiSTer-unstable-nightlies Updater (c) 2021 by Akuma GPLv2
 #
