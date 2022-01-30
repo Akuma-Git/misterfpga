@@ -26,7 +26,8 @@ trap "result" 0 1 3 15
 
 result(){
   case "$?" in
-    0) echo -e "core version: ${corefile##*/}\n";;
+    0) echo -e "last version: Github says, last commit on $gitversion"
+       echo -e "core version: ${corefile##*/}\n";;
    99) echo "self: updated self";;
   100) echo "error: cannot reach url";;
   101) echo "error: cannot write to sdcard";;
@@ -84,5 +85,8 @@ scriptfile="/media/fat/Scripts/${scripturl##*/}"
 
 [ -n "$maxkeep" -a -n "$coredir" -a -n "$corename" ] \
   && { ls -t "${coredir}/${corename}_unstable_"*".rbf"|awk "NR>$maxkeep"|xargs -r rm;}
+
+commiturl="https://github.com/MiSTer-unstable-nightlies/PSX_MiSTer/commits/main"
+gitversion="$(urlcat "$commiturl"|grep "Commits on"|head -1|sed 's,^.*Commits on ,,;s,<.*$,,')"
 
 exit 0
