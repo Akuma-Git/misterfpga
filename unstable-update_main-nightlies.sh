@@ -36,7 +36,7 @@ selfurl_version="$(urlcat "$selfurl"|sed -n 's,^version=,,;2p')"
 }
 
 nightliesurl="https://github.com/MiSTer-unstable-nightlies/Main_MiSTer/releases/tag/unstable-builds"
-nightliesfile="$(wget -q $nightliesurl -O -|grep -oE 'MiSTer_unstable_.[^"<]*''|tail -1)"
+nightliesfile="$(wget -q $nightliesurl -O -|grep -oE 'MiSTer_unstable_.[^"<]*'|tail -1)"
 [ -n "$nightliesfile" ] || exit 100
 
 nightliesurl="https://github.com/MiSTer-unstable-nightlies/Main_MiSTer/releases/download/unstable-builds/${nightliesfile}"
