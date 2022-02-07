@@ -1,8 +1,9 @@
 #!/bin/sh
-version=0.00
+version=0.01
 #
 #  MiSTer-unstable-nightlies Updater (c) 2021 by Akuma GPLv2
 #
+#  20220207 fix: greedier MiSTer_unstable regexp to match file
 #  20211221 initial release
 #
 self="$(readlink -f "$0")"
@@ -35,12 +36,12 @@ selfurl_version="$(urlcat "$selfurl"|sed -n 's,^version=,,;2p')"
 }
 
 nightliesurl="https://github.com/MiSTer-unstable-nightlies/Main_MiSTer/releases/tag/unstable-builds"
-nightliesfile="$(wget -q $nightliesurl -O -|grep -oE 'MiSTer_unstable_[0-9]{8}_[0-9a-f]{4}'|tail -1)"
-[ -n "$nightliesfile" ] || exit 101
+nightliesfile="$(wget -q $nightliesurl -O -|grep -oE 'MiSTer_unstable_.[^"<]*''|tail -1)"
+[ -n "$nightliesfile" ] || exit 100
 
 nightliesurl="https://github.com/MiSTer-unstable-nightlies/Main_MiSTer/releases/download/unstable-builds/${nightliesfile}"
 nightliessize="$(wget --spider "$nightliesurl" 2>&1|grep ^Length|cut -d' ' -f2)"
-[ -n "$nightliessize" ] || exit 101
+[ -n "$nightliessize" ] || exit 100
 
 misterfile="/media/fat/MiSTer"
 mistersize="$(stat -c%s "$misterfile")"
