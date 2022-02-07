@@ -1,8 +1,11 @@
 #!/bin/sh
-version=0.08
+version=0.09
 #
 #  MiSTer-unstable-nightlies Updater (c) 2021 by Akuma GPLv2
 #
+#  20220207 update: added main update notice
+#  20220207 update: removed one-time main update
+#  20220130 update: added github commit check
 #  20211222 update: changed update exit code to 99, removed white lines
 #  20211221 update: added auto-rename if old PlayStation games folder is found
 #  20211221 update: added one-time run for unstable-update_main-nightlies.sh
@@ -74,14 +77,13 @@ corefile="$coredir/${url##*/}"
   find "/media/fat" -maxdepth 2 -type d -name "$oldcorename" -exec rename -v $oldcorename $corename {} \;
 }
 
-scripturl="https://raw.githubusercontent.com/Akuma-Git/misterfpga/main/unstable-update_main-nightlies.sh"
-scriptfile="/media/fat/Scripts/${scripturl##*/}"
-[ -f "$scriptfile" ] || {
-  download "$scriptfile" "$scripturl"
-  misterhash="2663b54d09ddbfa248360cd29501b5e1"
-  misterfile="/media/fat/MiSTer"
-  md5sum "$misterfile"|grep -q "$misterhash" && exec "$scriptfile" #one-time-exec
-}
+mainurl="https://raw.githubusercontent.com/Akuma-Git/misterfpga/main/unstable-update_main-nightlies.sh"
+mainfile="/media/fat/Scripts/${mainurl##*/}"
+[ -f "$mainfile" ] || download "$mainfile" "$mainurl"
+
+misterhash="05074084b1469c75648d7eb4f1fb2a7c"
+misterfile="/media/fat/MiSTer"
+md5sum "$misterfile"|grep -q "$misterhash" && echo -e "NOTICE: Please update MAIN with: \"${mainurl##*/}\"\n"
 
 [ -n "$maxkeep" -a -n "$coredir" -a -n "$corename" ] \
   && { ls -t "${coredir}/${corename}_unstable_"*".rbf"|awk "NR>$maxkeep"|xargs -r rm;}
