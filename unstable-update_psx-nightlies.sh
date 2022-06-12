@@ -1,8 +1,12 @@
 #!/bin/sh
-version=0.09
+version=0.10
 #
 #  MiSTer-unstable-nightlies Updater (c) 2021 by Akuma GPLv2
 #
+#  20220612 update: added softlink to latest nightly core " PSX_latest"
+#  20220612 update: replaced bios url
+#  20220612 update: replaced bios update routine
+#  20220612 update: added unpack routine
 #  20220207 update: added main update notice
 #  20220207 update: removed one-time main update
 #  20220130 update: added github commit check
@@ -37,6 +41,7 @@ result(){
   102) echo "error: download failed";;
   103) echo "error: checksum failed";;
   104) echo "error: json parsing failed";;
+  105) echo "error: unzip failed";;
   esac
 }
 
@@ -44,6 +49,7 @@ makedir(){ [ -d "$1" ] || { mkdir -p "$1" || exit 101;};}
 download(){ wget --no-cache -q "$2" -O "$1" || { rm "$1";exit 102;};}
 urlcat(){ wget --no-cache -q "$1" -O - || exit 100;}
 checksum(){ md5sum "$1"|grep -q "$2" || { rm "$1";exit 103;};}
+unpack(){ unzip -o "$1" -d "$2" >/dev/null 2>&1 || exit 105;}
 
 selfurl="https://raw.githubusercontent.com/Akuma-Git/misterfpga/main/unstable-update_psx-nightlies.sh"
 selfurl_version="$(urlcat "$selfurl"|sed -n 's,^version=,,;2p')"
@@ -56,12 +62,25 @@ selfurl_version="$(urlcat "$selfurl"|sed -n 's,^version=,,;2p')"
 coredir="/media/fat/_Unstable";makedir "$coredir"
 gamesdir="/media/fat/games"
 psxdir="$gamesdir/${corename}";makedir "$psxdir"
+biosdir="$psxdir/.bios";makedir "$biosdir"
 
-biosurl="https://raw.githubusercontent.com/archtaurus/RetroPieBIOS/master/BIOS/scph1001.bin"
-bioshash="924e392ed05558ffdb115408c263dccf"
-biosfile="$psxdir/boot.rom"
+biosurl="https://archive.org/download/2019_11_25_redump_bios/Redump-BIOS/Sony%20-%20PlayStation%20-%20BIOS%20%2824%29%20%282016-10-21%29.zip"
+bioshash="660c547dac49dcb87f6a2633af1fa1a1"
+biosfile="$psxdir/psxbios.zip"
 [ -f "$biosfile" ] || download "$biosfile" "$biosurl"
 [ -n "$bioshash" ] && checksum "$biosfile" "$bioshash"
+
+[ -f "$psxdir/boot.rom" -a -L "$psxdir/boot.rom" -a \
+  -f "$psxdir/boot1.rom" -a -L "$psxdir/boot1.rom" -a \
+  -f "$psxdir/boot2.rom" -a -L "$psxdir/boot2.rom" ] || {
+  unpack "$psxdir/psxbios.zip" "$biosdir"
+  unpack "$biosdir/*.zip" "$biosdir"
+  rm "$biosdir"/ps*.zip
+  echo "bios updated:"
+  ln -vsf "$biosdir/ps-41a.bin" "$psxdir/boot.rom"
+  ln -vsf "$biosdir/ps-40j.bin" "$psxdir/boot1.rom"
+  ln -vsf "$biosdir/ps-41e.bin" "$psxdir/boot2.rom"
+}
 
 nightliesurl="https://raw.githubusercontent.com/MiSTer-unstable-nightlies/Unstable_Folder_MiSTer/main/db_unstable_nightlies_folder.json"
 nightlies="$(urlcat "$nightliesurl")" || exit 100
@@ -71,6 +90,7 @@ export $(echo $nightlies|grep -o "\"_Unstable/${corename}.[^}]*}"|sed 's,^.*{,,;
 corefile="$coredir/${url##*/}"
 [ -f "$corefile" ] || download "$corefile" "$url"
 [ -f "$corefile" ] || checksum "$corefile" "$hash"
+ln -sf "$corefile" "$coredir/ PSX_latest.rbf"
 
 [ -d "${gamesdir}/${oldcorename}" ] && {
   echo "NOTICE: renaming directories with new core name:"
@@ -81,9 +101,9 @@ mainurl="https://raw.githubusercontent.com/Akuma-Git/misterfpga/main/unstable-up
 mainfile="/media/fat/Scripts/${mainurl##*/}"
 [ -f "$mainfile" ] || download "$mainfile" "$mainurl"
 
-misterhash="05074084b1469c75648d7eb4f1fb2a7c"
-misterfile="/media/fat/MiSTer"
-md5sum "$misterfile"|grep -q "$misterhash" && echo -e "NOTICE: Please update MAIN with: \"${mainurl##*/}\"\n"
+#misterhash="05074084b1469c75648d7eb4f1fb2a7c"
+#misterfile="/media/fat/MiSTer"
+#md5sum "$misterfile"|grep -q "$misterhash" && echo -e "NOTICE: Please update MAIN with: \"${mainurl##*/}\"\n"
 
 [ -n "$maxkeep" -a -n "$coredir" -a -n "$corename" ] \
   && { ls -t "${coredir}/${corename}_unstable_"*".rbf"|awk "NR>$maxkeep"|xargs -r rm;}
