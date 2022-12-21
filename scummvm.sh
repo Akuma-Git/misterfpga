@@ -459,7 +459,6 @@ play || continue
 while :
 do
 	$(show_menu TITLE MENU) || eval $msgbox \"\$msg$?\" 5 80
-	false
 done
 
 exit $?
