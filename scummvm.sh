@@ -1,12 +1,7 @@
 #!/bin/sh -e
-version=0.01
+version=0.00
 resize
-#
-#  MiSTer ScummVM Setup Utility (c) 2022 by Akuma GPLv3
-#
-#  20221221 update: added self update
-#  20221221   info: initial draft
-#
+
 LICENSE='
 These scripts are part of the ScummVM Setup Utility (c) 2022 by Akuma
 under a GPLv3 license.
@@ -36,8 +31,7 @@ msg105="info: target does not exist"
 msg106="info: could not find any configuration files."
 msg107="error: cannot copy, source=target."
 msg108="error: cannot reach url"
-msg109="error: download failed"
-msg110="info: already on the latest version"
+msg109="info: already on the latest version"
 
 ### sanity
 [ ${DEBUG:-0} -eq 1 ] || {
@@ -107,8 +101,6 @@ get_remote_size(){ wget --spider $1 2>&1 | awk '/Length:/ awk {print $2}';}
 online(){ nc -z github.com 443;}
 
 urlcat(){ wget --no-cache -q "$1" -O -;}
-
-download(){ wget --no-cache -q "$2" -O "$1";}
 
 get_blobs(){
 	local raw="https://raw.githubusercontent.com"
@@ -275,7 +267,8 @@ games_import(){
 	local exe="$APP/$version/scummvm$version"
 	local conf="$exe.ini"
 	local title="Select game path:"
-	local list=$(find /media -mindepth 2 -maxdepth 3 -type d | sort | list_files)
+#	local list=$(find /media -mindepth 2 -maxdepth 3 -type d | sort | list_files)
+	local list=$(find /media -mindepth 2 -maxdepth 3 -type d | grep -v '\.' | sort | list_files)
 	local gamepath="$(show_menu title list)"
 	[ -n "$gamepath" ] || return 0
 	$exe --config=$conf --add --recursive --path=$gamepath 2>/dev/null | $programbox
@@ -423,14 +416,15 @@ update_self(){
 	local selfurl_version="$(urlcat "$selfurl"|sed -n 's,^version=,,;2p')"
 	[ -n "$selfurl_version" ] || return 108
 
-	[ "$selfurl_version" = "$version" ] && return 110 || {
+	[ "$selfurl_version" = "$version" ] && return 109 || {
 		local tempfile="$(mktemp -u)"
-		download "$tempfile" "$selfurl" || return 109
+		urlcat "$selfurl" > "$tempfile"
 		mv "$tempfile" "$self"
 		chmod +x "$self"
 		exec "$self"
 		exit 99
 	}
+	false
 }
 
 empty(){ :;}
@@ -465,6 +459,7 @@ play || continue
 while :
 do
 	$(show_menu TITLE MENU) || eval $msgbox \"\$msg$?\" 5 80
+	false
 done
 
 exit $?
